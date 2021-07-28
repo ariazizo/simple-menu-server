@@ -1,66 +1,21 @@
 const { response } = require('express')
 const express = require('express')
+const bodyParser = require('body-parser')
 const app = express()
+app.use(bodyParser.json())
 const port = 8000
-const items = [
-    {
-        name: "apple",
-        price: 10,
-        id: "1",
-    },
-    {
-        name: "banana",
-        price: 15,
-        id: "2",
-    },
-    {
-        name: "cherry",
-        price: 8,
-        id: "3",
-    },
-    {
-        name: "mango",
-        price: 9,
-        id: "4",
-    },
-    {
-        name: "pineapple",
-        price: 6,
-        id: "5",
-    },
-    {
-        name: "peach",
-        price: 7,
-        id: "6",
-    },
-    {
-        name: "blueberry",
-        price: 5,
-        id: "7",
-    },
-    {
-        name: "redberry",
-        price: 7,
-        id: "8",
-    },
-    {
-        name: "papaya",
-        price: 20,
-        id: "9",
-    },
-    {
-        name: "lime",
-        price: 17,
-        id: "10",
-    },
-    {
-        name: "kiwi",
-        price: 11,
-        id: "11",
-    },
-]
-
-
+const items = []
+let i = 0
+app.post('/items', (request, response) => {
+    const price = request.body.price
+    const name = request.body.name
+    const item = {
+        id: i, name, price
+    }
+    i++
+    items.push(item)
+    response.send(item)
+})
 app.get('/items', (request, response) => {
     response.send(items)
 })
@@ -72,10 +27,32 @@ app.get('/items', (request, response) => {
 //         }
 //     }
 // })
+app.delete('/items/:id', (request, response) => {
+    const id = request.params.id
+    for (let i = 0; i < items.length; i++) {
+        if (id == items[i].id) {
+            const removedElements = items.splice(i, 1)
+            response.send(removedElements[0])
+        }
+    }
+    response.send()
+})
+app.put('/items/:id', (request, response) => {
+    const id = request.params.id
+    const newPrice = request.body.price
+    const newName = request.body.name
+    for (let i = 0; i < items.length; i++) {
+        if (id == items[i].id) {
+            items[i].price = newPrice
+            items[i].name = newName
+            response.send(items[i])
+        }
+    }
+})
 app.get('/items/min/:y/max/:x', (request, response) => {
     let between = []
-    const max= request.params.x
-    const min= request.params.y
+    const max = request.params.x
+    const min = request.params.y
     for (let i = 0; i < items.length; i++) {
         if (items[i].price >= min && items[i].price <= max) {
             between.push(items[i])
